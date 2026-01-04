@@ -26,9 +26,13 @@ export async function POST(request: Request) {
 
     } catch (error: any) {
         console.error('Download API Error:', error);
+
+        const status = error.status || 500;
+        const message = error.message || 'An unexpected error occurred';
+
         return NextResponse.json(
-            { success: false, error: error.message || 'Internal Server Error' },
-            { status: 500 }
+            { success: false, error: message, code: error.code },
+            { status: status }
         );
     }
 }

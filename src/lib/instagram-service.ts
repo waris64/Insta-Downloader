@@ -34,12 +34,19 @@ interface RapidApiResponse {
     [key: string]: any;
 }
 
+export class InstagramError extends Error {
+    constructor(message: string, public code: string, public status?: number) {
+        super(message);
+        this.name = 'InstagramError';
+    }
+}
+
 export async function getInstagramVideo(url: string): Promise<InstagramData> {
     const apiKey = process.env.RAPIDAPI_KEY;
     const apiHost = process.env.RAPIDAPI_HOST || 'instagram-reels-downloader-api.p.rapidapi.com';
 
     if (!apiKey) {
-        throw new Error("Server Misconfiguration: RAPIDAPI_KEY is missing");
+        throw new InstagramError("Server Misconfiguration: RAPIDAPI_KEY is missing", "CONFIG_ERROR");
     }
 
     const encodedUrl = encodeURIComponent(url);
@@ -66,13 +73,33 @@ export async function getInstagramVideo(url: string): Promise<InstagramData> {
 
             if (!response.ok) {
                 const errorText = await response.text();
+
                 if (response.status === 401 || response.status === 403) {
-                    throw new Error(`Authentication error: ${response.status} - Check API Key`);
+                    throw new InstagramError("Authentication error with Provider. Check API key.", "AUTH_ERROR", response.status);
                 }
-                throw new Error(`External API error: ${response.status}`);
+
+                if (response.status === 404) {
+                    throw new InstagramError("The content was not found. It might be deleted or the link is broken.", "NOT_FOUND", 404);
+                }
+
+                if (response.status === 429) {
+                    throw new InstagramError("Rate limit exceeded. Please wait a moment and try again.", "RATE_LIMIT", 429);
+                }
+
+                throw new InstagramError(`External API error: ${response.status}`, "PROVIDER_ERROR", response.status);
             }
 
             const responseData: any = await response.json();
+
+            // Check for logic errors within a 200 response
+            if (responseData.success === false || responseData.error === true) {
+                const msg = responseData.message || responseData.error_message || "Failed to fetch content";
+                if (msg.toLowerCase().includes("private")) {
+                    throw new InstagramError("This account is private. We cannot download content from private profiles.", "PRIVATE_ACCOUNT", 403);
+                }
+                throw new InstagramError(msg, "API_LOGIC_ERROR");
+            }
+
             const data = responseData.data || responseData;
 
             // Map medias
@@ -124,7 +151,13 @@ export async function getInstagramVideo(url: string): Promise<InstagramData> {
 
         } catch (error: any) {
             lastError = error;
-            if (error.message.includes('Authentication error')) throw error;
+
+            // Don't retry on logic or configuration/auth errors
+            const skipRetryCodes = ['AUTH_ERROR', 'CONFIG_ERROR', 'NOT_FOUND', 'RATE_LIMIT', 'PRIVATE_ACCOUNT'];
+            if (error instanceof InstagramError && skipRetryCodes.includes(error.code)) {
+                throw error;
+            }
+
             retries--;
             if (retries > 0) await new Promise(resolve => setTimeout(resolve, 1000));
         }
