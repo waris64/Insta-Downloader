@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -13,7 +13,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "InstaDownloader",
+  title: "InstaSaver - Premium Instagram Reel Downloader",
+  description: "Download Instagram reels, stories, and carousels in full HD quality. Fast, secure, and easy to use.",
+  appleWebApp: {
+    title: 'InstaSaver',
+    statusBarStyle: 'black-translucent',
+    capable: true,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#0a0a0c',
 };
 
 import { Toaster } from "@/components/ui/sonner";

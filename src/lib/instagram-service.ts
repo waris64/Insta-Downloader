@@ -1,17 +1,25 @@
 import { getInstagramVideoId } from "./instagram-validator";
 
-interface InstagramData {
+export interface MediaItem {
+    url: string;
+    type: 'video' | 'image' | 'audio';
+    thumbnail?: string;
+    extension?: string;
+    quality?: string;
+}
+
+export interface InstagramData {
     id: string;
     url: string;
     thumbnail: string;
     title: string;
     author: string;
     platform: 'instagram';
+    type: 'video' | 'image' | 'multiple';
+    medias: MediaItem[];
 }
 
 // Define the expected shape of the RapidAPI response
-// Note: This is an assumption based on common API patterns. 
-// We will need to verify the actual response structure.
 interface RapidApiResponse {
     title?: string;
     thumbnail?: string;
@@ -21,20 +29,14 @@ interface RapidApiResponse {
     video_url?: string;
     username?: string;
     id?: string;
-    // Add other potential fields as needed based on actual API response
+    type?: string;
+    medias?: any[];
     [key: string]: any;
 }
 
 export async function getInstagramVideo(url: string): Promise<InstagramData> {
     const apiKey = process.env.RAPIDAPI_KEY;
     const apiHost = process.env.RAPIDAPI_HOST || 'instagram-reels-downloader-api.p.rapidapi.com';
-
-    // DEBUG: Check if key is loaded
-    console.log("Debug: API Key loaded?", apiKey ? "Yes" : "No");
-    if (apiKey) {
-        console.log("Debug: API Key (first 4 chars):", apiKey.substring(0, 4) + "****");
-    }
-    console.log("Debug: API Host:", apiHost);
 
     if (!apiKey) {
         throw new Error("Server Misconfiguration: RAPIDAPI_KEY is missing");
@@ -49,8 +51,6 @@ export async function getInstagramVideo(url: string): Promise<InstagramData> {
 
     while (retries > 0) {
         try {
-            // Using a signal with a longer timeout if supported, otherwise just simple fetch
-            // Node 18+ supports AbortSignal.timeout
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
 
@@ -66,91 +66,69 @@ export async function getInstagramVideo(url: string): Promise<InstagramData> {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                // If it's a 429 (Too Many Requests), maybe don't retry immediately or handle differently, 
-                // but for now we treat it as an error to be thrown (or we could return it).
-                // If it's 401/403 (Auth), retrying won't help.
                 if (response.status === 401 || response.status === 403) {
-                    console.error(`RapidAPI Auth Error (${response.status}):`, errorText);
                     throw new Error(`Authentication error: ${response.status} - Check API Key`);
                 }
-
-                console.error(`RapidAPI Error (${response.status}):`, errorText);
                 throw new Error(`External API error: ${response.status}`);
             }
 
-            // If success, break loop and process data
             const responseData: any = await response.json();
-
-            // Success path continues...
-            console.log("RapidAPI Response:", JSON.stringify(responseData, null, 2));
-
-            // DEBUG: Write to file to inspect structure
-            try {
-                const fs = await import('fs');
-                const path = await import('path');
-                fs.writeFileSync(path.join(process.cwd(), 'debug_response.json'), JSON.stringify(responseData, null, 2));
-            } catch (e) {
-                console.error("Failed to write debug file:", e);
-            }
-
-            // Handle nested data structure
             const data = responseData.data || responseData;
 
-            // Map the API response to our internal data structure
-            // 1. Check for 'medias' array (common in some rapidapi wrappers)
-            let videoUrl = data.download_url || data.video_url || data.media;
-
-            // If direct url not found, check medias array
-            if (!videoUrl && data.medias && Array.isArray(data.medias)) {
-                // Prioritize video type
-                const videoMedia = data.medias.find((m: any) => m.type === 'video' || m.extension === 'mp4');
-                if (videoMedia) {
-                    videoUrl = videoMedia.url;
-                }
+            // Map medias
+            let medias: MediaItem[] = [];
+            if (data.medias && Array.isArray(data.medias)) {
+                medias = data.medias.map((m: any) => ({
+                    url: m.url,
+                    type: m.type || (m.extension === 'mp4' ? 'video' : 'image'),
+                    thumbnail: m.thumbnail || data.thumbnail || "",
+                    extension: m.extension,
+                    quality: m.quality || m.resolution
+                }));
             }
 
-            // Fallback: check if 'url' matches what we need, but avoid source instagram urls
-            if (!videoUrl && data.url && !data.url.includes('instagram.com')) {
-                videoUrl = data.url;
+            // Primary URL logic
+            let primaryUrl = data.download_url || data.video_url || data.media;
+
+            // If no primary URL, pick the best video or image from medias
+            if (!primaryUrl && medias.length > 0) {
+                const bestMedia = medias.find(m => m.type === 'video') || medias.find(m => m.type === 'image') || medias[0];
+                primaryUrl = bestMedia.url;
             }
 
-            const thumbnail = data.thumbnail || data.thumbnail_url;
-            const title = data.title || "Instagram Video";
-            const author = data.author || data.username || (data.owner ? data.owner.username : "Instagram User");
-            const videoId = data.id || getInstagramVideoId(url) || "unknown-id";
+            // Fallback for single image/video URL
+            if (!primaryUrl && data.url && !data.url.includes('instagram.com')) {
+                primaryUrl = data.url;
+            }
 
-            if (!videoUrl) {
-                console.error("Missing video URL in response:", data);
+            if (!primaryUrl) {
                 throw new Error("Could not find download URL in API response");
             }
 
+            const thumbnail = data.thumbnail || data.thumbnail_url || (medias.length > 0 ? medias[0].thumbnail : "");
+            const title = data.title || "Instagram Content";
+            const author = data.author || data.username || (data.owner ? data.owner.username : "Instagram User");
+            const videoId = data.id || getInstagramVideoId(url) || "unknown-id";
+            const type = data.type === 'multiple' && medias.filter(m => m.type !== 'audio').length > 1 ? 'multiple' : (medias.some(m => m.type === 'video') ? 'video' : 'image');
+
             return {
                 id: videoId,
-                url: videoUrl,
+                url: primaryUrl,
                 thumbnail: thumbnail || "",
                 title: title,
                 author: author,
-                platform: 'instagram'
+                platform: 'instagram',
+                type: type as any,
+                medias: medias
             };
 
         } catch (error: any) {
             lastError = error;
-            console.warn(`Fetch attempt failed (${3 - retries + 1}/3):`, error.message);
-
-            // Don't retry on auth errors
-            if (error.message.includes('Authentication error')) {
-                throw error;
-            }
-
+            if (error.message.includes('Authentication error')) throw error;
             retries--;
-            if (retries > 0) {
-                // Wait 1s before retry
-                await new Promise(resolve => setTimeout(resolve, 1000));
-            }
+            if (retries > 0) await new Promise(resolve => setTimeout(resolve, 1000));
         }
     }
 
-    // If loop finishes without returning, throw the last error
-    throw lastError || new Error("Failed to fetch from Instagram API after multiple attempts");
-
+    throw lastError || new Error("Failed to fetch from Instagram API");
 }

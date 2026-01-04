@@ -8,6 +8,7 @@ import { useDownloader } from "@/hooks/use-downloader";
 import { AlertCircle, Camera, Sparkles, Video } from "lucide-react";
 import { RecentDownloads } from "@/components/recent-downloads";
 import { useRecentDownloads } from "@/hooks/use-recent-downloads";
+import { AdPlaceholder } from "@/components/ad-placeholder";
 
 export default function Home() {
   const { downloadVideo, isLoading, error, data } = useDownloader();
@@ -20,7 +21,8 @@ export default function Home() {
                 id: videoData.id,
                 url: url,
                 thumbnail: videoData.thumbnail,
-                title: videoData.title
+                title: videoData.title,
+                type: videoData.type
             });
         }
     });
@@ -113,11 +115,13 @@ export default function Home() {
 
         {/* Features Grid - Only show if no results yet */}
         {(!data && !isLoading) && (
-            <div className="mt-20 animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-500">
+            <div className="mt-20 animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-500 w-full max-w-4xl">
+                <AdPlaceholder className="mb-12" />
                 <div className="text-center mb-12">
                     <h2 className="text-2xl font-bold text-zinc-400 uppercase tracking-widest">Why use InstaSaver?</h2>
                 </div>
                 <FeatureSection />
+                <AdPlaceholder className="mt-20" label="Sponsor Content" />
             </div>
         )}
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { Clock, X, ExternalLink } from "lucide-react"
+import { Clock, X, ExternalLink, Video, Layers } from "lucide-react"
 import { RecentDownload } from "@/hooks/use-recent-downloads"
 import { Button } from "@/components/ui/button"
 
@@ -32,12 +32,17 @@ export function RecentDownloads({ items, onRemove, onSelect }: RecentDownloadsPr
             className="group relative glass rounded-2xl p-3 flex items-center gap-4 hover:bg-white/10 dark:hover:bg-black/20 transition-all duration-300 border-none overflow-hidden"
           >
             {/* Thumbnail */}
-            <div className="w-16 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-zinc-100 dark:bg-zinc-900 shadow-inner">
+            <div className="w-16 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-zinc-100 dark:bg-zinc-900 shadow-inner relative">
                 {item.thumbnail ? (
                     <img src={item.thumbnail} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center bg-indigo-500/10">
                         <Clock className="w-6 h-6 text-indigo-500/30" />
+                    </div>
+                )}
+                {item.type && item.type !== 'image' && (
+                    <div className="absolute bottom-1 right-1 p-0.5 rounded-md bg-black/60 backdrop-blur-sm text-white">
+                        {item.type === 'multiple' ? <Layers className="w-2.5 h-2.5" /> : <Video className="w-2.5 h-2.5" />}
                     </div>
                 )}
             </div>

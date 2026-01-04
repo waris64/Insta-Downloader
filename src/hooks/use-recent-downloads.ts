@@ -11,6 +11,7 @@ export interface RecentDownload {
     thumbnail: string
     title: string
     timestamp: number
+    type?: 'video' | 'image' | 'multiple'
 }
 
 export function useRecentDownloads() {
