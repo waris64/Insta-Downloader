@@ -15,10 +15,37 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "InstaSaver - Premium Instagram Reel Downloader",
   description: "Download Instagram reels, stories, and carousels in full HD quality. Fast, secure, and easy to use.",
+  keywords: ["instagram downloader", "reels downloader", "download instagram videos", "instagram story saver", "instagram carousel downloader"],
+  authors: [{ name: "InstaSaver Team" }],
+  openGraph: {
+    title: 'InstaSaver - Premium Instagram Reel Downloader',
+    description: 'Download Instagram reels, stories, and carousels in full HD quality.',
+    url: 'https://instasaver.example.com', // Replace with actual domain later
+    siteName: 'InstaSaver',
+    images: [
+      {
+        url: '/icon-512x512.png',
+        width: 512,
+        height: 512,
+        alt: 'InstaSaver Logo',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'InstaSaver - Premium Instagram Reel Downloader',
+    description: 'The fastest way to download Instagram reels, photos, and stories.',
+    images: ['/icon-512x512.png'],
+  },
   appleWebApp: {
     title: 'InstaSaver',
     statusBarStyle: 'black-translucent',
     capable: true,
+  },
+  alternates: {
+    canonical: '/',
   },
 };
 

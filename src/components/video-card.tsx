@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Download, Share2, Layers, Video as VideoIcon, Image as ImageIcon } from "lucide-react"
 import { InstagramData } from "@/lib/instagram-service";
+import NextImage from "next/image";
 
 interface VideoCardProps {
     data: InstagramData | null;
@@ -49,10 +50,13 @@ export function VideoCard({ data }: VideoCardProps) {
                         className="w-full h-full object-cover"
                     />
                 ) : (
-                    <img 
+                    <NextImage 
                         src={data.url} 
                         alt={data.title}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        priority
                     />
                 )}
                 <div className="absolute top-4 right-4 px-2 py-1 bg-black/60 backdrop-blur-md rounded text-[10px] font-bold text-white uppercase tracking-tighter">
@@ -66,7 +70,13 @@ export function VideoCard({ data }: VideoCardProps) {
                         {media.type === 'video' ? (
                             <video src={media.url} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
                         ) : (
-                            <img src={media.url} alt="" className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
+                            <NextImage 
+                                src={media.url} 
+                                alt="" 
+                                fill 
+                                className="object-cover opacity-60 group-hover:opacity-100 transition-opacity" 
+                                sizes="(max-width: 768px) 50vw, 33vw"
+                            />
                         )}
                         
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
