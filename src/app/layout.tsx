@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://instasaver.example.com'),
   title: "InstaSaver - Premium Instagram Reel Downloader",
   description: "Download Instagram reels, stories, and carousels in full HD quality. Fast, secure, and easy to use.",
   keywords: ["instagram downloader", "reels downloader", "download instagram videos", "instagram story saver", "instagram carousel downloader"],
@@ -54,6 +55,8 @@ export const viewport: Viewport = {
 };
 
 import { Toaster } from "@/components/ui/sonner";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export default function RootLayout({
   children,
@@ -67,6 +70,8 @@ export default function RootLayout({
       >
         {children}
         <Toaster position="top-center" richColors />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
