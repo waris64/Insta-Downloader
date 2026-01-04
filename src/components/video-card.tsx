@@ -57,6 +57,7 @@ export function VideoCard({ data }: VideoCardProps) {
                         className="object-cover"
                         sizes="(max-width: 768px) 100vw, 50vw"
                         priority
+                        unoptimized
                     />
                 )}
                 <div className="absolute top-4 right-4 px-2 py-1 bg-black/60 backdrop-blur-md rounded text-[10px] font-bold text-white uppercase tracking-tighter">
@@ -76,6 +77,7 @@ export function VideoCard({ data }: VideoCardProps) {
                                 fill 
                                 className="object-cover opacity-60 group-hover:opacity-100 transition-opacity" 
                                 sizes="(max-width: 768px) 50vw, 33vw"
+                                unoptimized
                             />
                         )}
                         

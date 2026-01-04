@@ -68,8 +68,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="preconnect" href="https://scontent.cdninstagram.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://instagram.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://scontent.cdninstagram.com" />
+        <link rel="preconnect" href="https://instagram.com" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
