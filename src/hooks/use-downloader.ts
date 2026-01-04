@@ -17,7 +17,7 @@ export function useDownloader() {
         data: null,
     });
 
-    const downloadVideo = async (url: string) => {
+    const downloadVideo = async (url: string, options?: { onSuccess?: (data: any) => void }) => {
         // Reset state
         setState(prev => ({ ...prev, isLoading: true, error: null }));
 
@@ -36,6 +36,11 @@ export function useDownloader() {
             const result = await fetchInstagramData(url);
 
             if (result.success && result.data) {
+                // Save to recent downloads if callback provided
+                if (options?.onSuccess) {
+                    options.onSuccess(result.data);
+                }
+
                 setState({
                     isLoading: false,
                     error: null,
