@@ -9,6 +9,7 @@ import { AlertCircle, Camera, Sparkles, Video } from "lucide-react";
 import { RecentDownloads } from "@/components/recent-downloads";
 import { useRecentDownloads } from "@/hooks/use-recent-downloads";
 import { AdPlaceholder } from "@/components/ad-placeholder";
+import { JsonLd } from "@/components/json-ld";
 
 export default function Home() {
   const { downloadVideo, isLoading, error, data } = useDownloader();
@@ -30,8 +31,10 @@ export default function Home() {
 
   return (
     <div className="relative flex flex-col min-h-screen bg-white dark:bg-[#0a0a0c] text-zinc-900 dark:text-zinc-100 selection:bg-indigo-500/30 selection:text-white overflow-x-hidden">
+      <JsonLd />
       
       {/* Decorative Background Elements */}
+
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500/10 blur-[120px] rounded-full"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 blur-[120px] rounded-full"></div>

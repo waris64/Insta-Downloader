@@ -5,8 +5,8 @@ export default function robots(): MetadataRoute.Robots {
         rules: {
             userAgent: '*',
             allow: '/',
-            disallow: '/api/',
+            disallow: ['/api/', '/private/', '/admin/'],
         },
-        sitemap: 'https://instasaver.example.com/sitemap.xml',
+        sitemap: 'https://insta-downloader-kappa.vercel.app/sitemap.xml',
     }
 }
