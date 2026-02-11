@@ -10,6 +10,8 @@ import { RecentDownloads } from "@/components/recent-downloads";
 import { useRecentDownloads } from "@/hooks/use-recent-downloads";
 import { AdPlaceholder } from "@/components/ad-placeholder";
 import { JsonLd } from "@/components/json-ld";
+import { HowItWorks } from "@/components/how-it-works";
+import { FaqSection } from "@/components/faq-section";
 
 export default function Home() {
   const { downloadVideo, isLoading, error, data } = useDownloader();
@@ -127,6 +129,12 @@ export default function Home() {
                 <AdPlaceholder className="mt-20" label="Sponsor Content" />
             </div>
         )}
+
+        {/* Content Sections - Always visible for SEO */}
+        <div className="w-full mt-24 space-y-24 border-t border-zinc-100 dark:border-white/5 pt-24">
+             <HowItWorks />
+             <FaqSection />
+        </div>
 
       </main>
       
