@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "node scripts/check-env.cjs && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint",
+    "indexnow": "node scripts/submit-indexnow.mjs"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.4",
