@@ -21,7 +21,7 @@
       template: "%s | InstaSaver"
     },
     description: "Download Instagram reels, stories, and carousels in full HD quality. Fast, secure, free, and no login required. The best tool for saving Instagram content.",
-    keywords: ["instagram downloader", "reels downloader", "download instagram videos", "instagram story saver", "instagram carousel downloader", "save reels", "insta video saver"],
+    keywords: ["instagram downloader", "reels downloader", "download instagram videos", "instagram story saver", "instagram carousel downloader", "save reels", "insta video saver", "download instagram reels", "instagram photo downloader"],
     authors: [{ name: "InstaSaver Team" }],
     creator: "InstaSaver Team",
     publisher: "InstaSaver",
