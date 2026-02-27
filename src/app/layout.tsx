@@ -37,6 +37,7 @@
       },
     },
     verification: {
+      google: '3vUa3U0fsnV31T9u7roUOFEgI3L0FYeStxaqTkuLfkY',
       other: {
         'msvalidate.01': 'D03EB7B4842348EE60188204405EB893',
       },
