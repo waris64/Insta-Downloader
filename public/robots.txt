@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://insta-downloader-kappa.vercel.app/sitemap.xml

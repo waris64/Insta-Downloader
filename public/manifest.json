@@ -1,0 +1,25 @@
+{
+  "name": "InstaSaver — Instagram Reels Downloader",
+  "short_name": "InstaSaver",
+  "description": "Download Instagram Reels videos as MP4 in HD quality — free, fast, and without watermarks.",
+  "start_url": "/?source=pwa",
+  "display": "standalone",
+  "background_color": "#0a0a0c",
+  "theme_color": "#0a0a0c",
+  "icons": [
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "share_target": {
+    "action": "/",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}

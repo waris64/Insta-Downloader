@@ -5,13 +5,17 @@ import { VideoCard } from "@/components/video-card";
 import { FeatureSection } from "@/components/feature-section";
 import { ResultSkeleton } from "@/components/result-skeleton";
 import { useDownloader } from "@/hooks/use-downloader";
-import { AlertCircle, Camera, Sparkles, Video } from "lucide-react";
+import { AlertCircle, Sparkles, Video } from "lucide-react";
 import { RecentDownloads } from "@/components/recent-downloads";
 import { useRecentDownloads } from "@/hooks/use-recent-downloads";
 import { AdPlaceholder } from "@/components/ad-placeholder";
 import { JsonLd } from "@/components/json-ld";
 import { HowItWorks } from "@/components/how-it-works";
 import { FaqSection } from "@/components/faq-section";
+import { SiteFooter } from "@/components/site-footer";
+import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
+import Link from "next/link";
+import { useEffect } from "react";
 
 export default function Home() {
   const { downloadVideo, isLoading, error, data } = useDownloader();
@@ -31,6 +35,32 @@ export default function Home() {
     });
   };
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(console.error);
+    }
+
+    // Handle Share Target API incoming data
+    const params = new URLSearchParams(window.location.search);
+    const sharedText = params.get('text') || params.get('url');
+    
+    if (sharedText) {
+      const urlMatch = sharedText.match(/https?:\/\/(www\.)?instagram\.com\/[^\s]+/i);
+      if (urlMatch) {
+         const foundUrl = urlMatch[0];
+         // Clean up URL so if they refresh, it doesn't retrigger
+         window.history.replaceState({}, '', '/');
+         
+         // Add a small delay so the UI can render before starting the download
+         setTimeout(() => handleDownload(foundUrl), 100);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className="relative flex flex-col min-h-screen bg-white dark:bg-[#0a0a0c] text-zinc-900 dark:text-zinc-100 selection:bg-indigo-500/30 selection:text-white overflow-x-hidden">
       <JsonLd />
@@ -43,25 +73,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-grid-slate-100 dark:bg-grid-slate-900 bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black,transparent)] opacity-20"></div>
       </div>
 
-      {/* Navbar */}
-      <nav className="fixed top-0 w-full z-50 glass border-b-none py-4">
-        <div className="container mx-auto px-6 flex items-center justify-between">
-            <div className="flex items-center gap-2 group cursor-pointer">
-                <div className="p-2 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg group-hover:scale-110 transition-transform">
-                    <Video className="w-5 h-5 text-white" />
-                </div>
-                <span className="font-black text-2xl tracking-tighter bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">
-                    Insta<span className="text-indigo-500">Saver</span>
-                </span>
-            </div>
-            
-            <div className="hidden md:flex items-center gap-6">
-                 <a href="#" className="text-sm font-bold text-zinc-500 hover:text-indigo-500 transition-colors">How it works</a>
-                 <a href="#" className="text-sm font-bold text-zinc-500 hover:text-indigo-500 transition-colors">Pricing</a>
-                 <div className="px-5 py-2 rounded-full glass text-xs font-bold border-white/5">v2.0 Beta</div>
-            </div>
-        </div>
-      </nav>
+
 
       <main className="relative z-10 flex-1 container mx-auto px-6 pt-32 pb-24 flex flex-col items-center">
         
@@ -127,6 +139,14 @@ export default function Home() {
                 </div>
                 <FeatureSection />
                 <AdPlaceholder className="mt-20" label="Sponsor Content" />
+                <div className="mt-12 text-center">
+                    <Link
+                        href="/how-to-download-instagram-reels"
+                        className="inline-flex items-center gap-2 text-indigo-500 hover:text-indigo-400 font-semibold text-sm transition-colors"
+                    >
+                        📖 How to download Instagram Reels step by step →
+                    </Link>
+                </div>
             </div>
         )}
 
@@ -138,22 +158,8 @@ export default function Home() {
 
       </main>
       
-      <footer className="relative z-10 w-full py-12 border-t border-zinc-100 dark:border-white/5">
-        <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-2 grayscale brightness-50 contrast-200">
-                <Camera className="w-5 h-5" />
-                <span className="font-bold text-lg tracking-tight">InstaSaver</span>
-            </div>
-            <p className="text-sm font-medium text-zinc-500">
-                © 2026 Crafted with ❤️ for the community.
-            </p>
-            <div className="flex gap-8 text-xs font-bold text-zinc-500 uppercase tracking-widest">
-                <a href="#" className="hover:text-indigo-500">Privacy</a>
-                <a href="#" className="hover:text-indigo-500">Terms</a>
-                <a href="#" className="hover:text-indigo-500">Contact</a>
-            </div>
-        </div>
-      </footer>
+      <SiteFooter />
+      <PwaInstallPrompt />
     </div>
   );
 }
